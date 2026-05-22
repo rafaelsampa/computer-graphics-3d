@@ -22,8 +22,8 @@
     document.body.appendChild(renderizador.domElement);
 
     const cubo = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      <!-- new THREE.BoxGeometry(1, 1, 1, 3, 3, 3), -->
+      // new THREE.BoxGeometry(1, 1, 1),
+      new THREE.BoxGeometry(1, 1, 1, 3, 3, 3),
       new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
     );
     cubo.rotation.x = 0.5;
