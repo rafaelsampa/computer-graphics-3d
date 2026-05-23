@@ -22,9 +22,9 @@ Aplicar os conceitos de transformações em 3D (translação, rotação, escala)
 ## Referências
 Fontes consultadas pelo grupo durante o desenvolvimento. Vai sendo atualizada conforme novos materiais forem usados.
 
-- **Slides da disciplina** — `transf3d-p3-pratica.pdf` (prof. Pedro Ximenes, UNICAP). Base teórica: pilares Scene/Camera/Renderer, hierarquia de Groups, setup inicial.
-- **Exemplos da aula** — `ex1-rotacao.html`, `ex2-escopo.html`, `ex3-solar.html`. Padrão de organização do código (criação dos pilares, loop de animação, uso de `Group` para órbitas).
-- **Documentação oficial do Three.js** — https://threejs.org/docs/
+- **Slides da disciplina**: `transf3d-p3-pratica.pdf` (prof. Pedro Ximenes, UNICAP). Base teórica: pilares Scene/Camera/Renderer, hierarquia de Groups, setup inicial.
+- **Exemplos da aula**: `ex1-rotacao.html`, `ex2-escopo.html`, `ex3-solar.html`. Padrão de organização do código (criação dos pilares, loop de animação, uso de `Group` para órbitas).
+- **Documentação oficial do Three.js**: https://threejs.org/docs/
 
 ## Membros do grupo
 - Rafael Sampaio
