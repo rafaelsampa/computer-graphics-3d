@@ -64,7 +64,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 
-  // Rotação eixo Y
+  // --- renderizador ---
   if (teclas["ArrowLeft"]) {
     cuboMagico.rotation.y -= 0.03;
   }
@@ -73,7 +73,7 @@ function animate() {
     cuboMagico.rotation.y += 0.03;
   }
 
-  // Rotação eixo X
+  // --- Rotação eixo X ---
   if (teclas["ArrowUp"]) {
     cuboMagico.rotation.x -= 0.03;
   }
