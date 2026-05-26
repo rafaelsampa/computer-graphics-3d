@@ -41,25 +41,51 @@
 
     cena.add(cuboMagico);
 
-    // --- Rotacao da face de cima com a tecla "1" (anti-horario) ---
-    document.addEventListener('keydown', (e) => {
-      if (e.key === '1') {
-        const grupoFace = new THREE.Group();
-        cena.add(grupoFace);
+    
+// =========================================
+// CONTROLE DO TECLADO
+// =========================================
 
-        const topo = cuboMagico.children.filter(c => c.position.y > 0.5);
-        topo.forEach(c => grupoFace.attach(c));
+const teclas = {};
 
-        grupoFace.rotateY(-Math.PI / 2);
+window.addEventListener("keydown", (evento) => {
+  teclas[evento.key] = true;
+});
 
-        topo.forEach(c => cuboMagico.attach(c));
-        cena.remove(grupoFace);
+window.addEventListener("keyup", (evento) => {
+  teclas[evento.key] = false;
+});
 
-        renderizador.render(cena, camera);
-      }
-    });
+// =========================================
+// LOOP DE ANIMAÇÃO
+// =========================================
 
-    renderizador.render(cena, camera);
+function animate() {
+
+  requestAnimationFrame(animate);
+
+  // Rotação eixo Y
+  if (teclas["ArrowLeft"]) {
+    cuboMagico.rotation.y -= 0.03;
+  }
+
+  if (teclas["ArrowRight"]) {
+    cuboMagico.rotation.y += 0.03;
+  }
+
+  // Rotação eixo X
+  if (teclas["ArrowUp"]) {
+    cuboMagico.rotation.x -= 0.03;
+  }
+
+  if (teclas["ArrowDown"]) {
+    cuboMagico.rotation.x += 0.03;
+  }
+
+  renderizador.render(cena, camera);
+}
+
+animate();
 
   </script>
 </body>
