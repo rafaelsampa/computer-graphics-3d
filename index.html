@@ -3,37 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <title>Cubo Magico 3D</title>
-  <style>body { margin: 0; }</style>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+    }
+
+  </style>
 </head>
+
 <body>
+
+  <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- OrbitControls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+
   <script>
 
-    // --- O mundo 3D ---
+    // =========================================
+    // CENA
+    // =========================================
+
     const cena = new THREE.Scene();
 
-    // --- A camera ---
+    // =========================================
+    // CAMERA
+    // =========================================
+
     const camera = new THREE.PerspectiveCamera(
-      45, window.innerWidth / window.innerHeight, 0.1, 1000
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
     );
+
     camera.position.set(0, 0, 7);
 
-    // --- O renderizador ---
-    const renderizador = new THREE.WebGLRenderer();
-    renderizador.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderizador.domElement);
+    // =========================================
+    // RENDERIZADOR
+    // =========================================
 
-    // --- O cubo magico: grupo com 27 cubinhos ---
+    const renderizador = new THREE.WebGLRenderer({
+      antialias: true
+    });
+
+    renderizador.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+    document.body.appendChild(
+      renderizador.domElement
+    );
+
+    // =========================================
+    // ORBIT CONTROLS
+    // =========================================
+
+    const controls = new THREE.OrbitControls(
+      camera,
+      renderizador.domElement
+    );
+
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // =========================================
+    // CONTADOR DE MOVIMENTOS
+    // =========================================
+
+    let movimentos = 0;
+
+    // =========================================
+    // INTERFACE GRAFICA
+    // =========================================
+
+    const painel = document.createElement("div");
+
+    painel.style.position = "absolute";
+    painel.style.top = "20px";
+    painel.style.left = "20px";
+    painel.style.padding = "15px";
+    painel.style.background = "rgba(0,0,0,0.7)";
+    painel.style.color = "white";
+    painel.style.fontFamily = "Arial";
+    painel.style.fontSize = "20px";
+    painel.style.borderRadius = "10px";
+
+    painel.innerHTML = `
+      <b>Cubo Mágico 3D</b><br><br>
+
+      Movimentos:
+      <span id="contador">0</span>
+
+      <br><br>
+
+      Controles:<br>
+      ← → Rotação Y<br>
+      ↑ ↓ Rotação X<br>
+      Mouse = OrbitControls
+    `;
+
+    document.body.appendChild(painel);
+
+    // =========================================
+    // CUBO MAGICO
+    // =========================================
+
     const cuboMagico = new THREE.Group();
 
-    const geometria = new THREE.BoxGeometry(0.95, 0.95, 0.95);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    const geometria = new THREE.BoxGeometry(
+      0.95,
+      0.95,
+      0.95
+    );
 
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x00ff00,
+      wireframe: true
+    });
+
+    // --- 27 cubinhos ---
     for (let x = -1; x <= 1; x++) {
+
       for (let y = -1; y <= 1; y++) {
+
         for (let z = -1; z <= 1; z++) {
-          const cubinho = new THREE.Mesh(geometria, material);
+
+          const cubinho = new THREE.Mesh(
+            geometria,
+            material
+          );
+
           cubinho.position.set(x, y, z);
+
           cuboMagico.add(cubinho);
         }
       }
@@ -41,52 +149,106 @@
 
     cena.add(cuboMagico);
 
-    
-// =========================================
-// CONTROLE DO TECLADO
-// =========================================
+    // =========================================
+    // CONTROLE DO TECLADO
+    // =========================================
 
-const teclas = {};
+    const teclas = {};
 
-window.addEventListener("keydown", (evento) => {
-  teclas[evento.key] = true;
-});
+    window.addEventListener("keydown", (evento) => {
+      teclas[evento.key] = true;
+    });
 
-window.addEventListener("keyup", (evento) => {
-  teclas[evento.key] = false;
-});
+    window.addEventListener("keyup", (evento) => {
+      teclas[evento.key] = false;
+    });
 
-// =========================================
-// LOOP DE ANIMAÇÃO
-// =========================================
+    // =========================================
+    // FUNÇÃO DE MOVIMENTOS
+    // =========================================
 
-function animate() {
+    function registrarMovimento() {
 
-  requestAnimationFrame(animate);
+      movimentos++;
 
-  // --- renderizador ---
-  if (teclas["ArrowLeft"]) {
-    cuboMagico.rotation.y -= 0.03;
-  }
+      document.getElementById(
+        "contador"
+      ).innerText = movimentos;
 
-  if (teclas["ArrowRight"]) {
-    cuboMagico.rotation.y += 0.03;
-  }
+    }
 
-  // --- Rotação eixo X ---
-  if (teclas["ArrowUp"]) {
-    cuboMagico.rotation.x -= 0.03;
-  }
+    // =========================================
+    // LOOP DE ANIMAÇÃO
+    // =========================================
 
-  if (teclas["ArrowDown"]) {
-    cuboMagico.rotation.x += 0.03;
-  }
+    function animate() {
 
-  renderizador.render(cena, camera);
-}
+      requestAnimationFrame(animate);
 
-animate();
+      // ---------------------------------
+      // Rotação eixo Y
+      // ---------------------------------
+
+      if (teclas["ArrowLeft"]) {
+
+        cuboMagico.rotation.y -= 0.03;
+
+        registrarMovimento();
+      }
+
+      if (teclas["ArrowRight"]) {
+
+        cuboMagico.rotation.y += 0.03;
+
+        registrarMovimento();
+      }
+
+      // ---------------------------------
+      // Rotação eixo X
+      // ---------------------------------
+
+      if (teclas["ArrowUp"]) {
+
+        cuboMagico.rotation.x -= 0.03;
+
+        registrarMovimento();
+      }
+
+      if (teclas["ArrowDown"]) {
+
+        cuboMagico.rotation.x += 0.03;
+
+        registrarMovimento();
+      }
+
+      // Atualiza OrbitControls
+      controls.update();
+
+      // Renderiza cena
+      renderizador.render(cena, camera);
+    }
+
+    animate();
+
+    // =========================================
+    // RESPONSIVIDADE
+    // =========================================
+
+    window.addEventListener("resize", () => {
+
+      camera.aspect =
+        window.innerWidth / window.innerHeight;
+
+      camera.updateProjectionMatrix();
+
+      renderizador.setSize(
+        window.innerWidth,
+        window.innerHeight
+      );
+
+    });
 
   </script>
+
 </body>
 </html>
