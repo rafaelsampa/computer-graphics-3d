@@ -41,6 +41,24 @@
 
     cena.add(cuboMagico);
 
+    // --- Rotacao da face de cima com a tecla "1" (anti-horario) ---
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '1') {
+        const grupoFace = new THREE.Group();
+        cena.add(grupoFace);
+
+        const topo = cuboMagico.children.filter(c => c.position.y > 0.5);
+        topo.forEach(c => grupoFace.attach(c));
+
+        grupoFace.rotateY(-Math.PI / 2);
+
+        topo.forEach(c => cuboMagico.attach(c));
+        cena.remove(grupoFace);
+
+        renderizador.render(cena, camera);
+      }
+    });
+
     renderizador.render(cena, camera);
 
   </script>
