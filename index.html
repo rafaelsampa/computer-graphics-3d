@@ -123,10 +123,14 @@
       0.95
     );
 
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      wireframe: true
-    });
+    const materiais = [
+      new THREE.MeshBasicMaterial({ color: 0xff0000 }), // direita  (+X) vermelho
+      new THREE.MeshBasicMaterial({ color: 0xff8800 }), // esquerda (-X) laranja
+      new THREE.MeshBasicMaterial({ color: 0xffffff }), // topo     (+Y) branco
+      new THREE.MeshBasicMaterial({ color: 0xffff00 }), // base     (-Y) amarelo
+      new THREE.MeshBasicMaterial({ color: 0x00ff00 }), // frente   (+Z) verde
+      new THREE.MeshBasicMaterial({ color: 0x0000ff })  // tras     (-Z) azul
+    ];
 
     // --- 27 cubinhos ---
     for (let x = -1; x <= 1; x++) {
@@ -137,7 +141,7 @@
 
           const cubinho = new THREE.Mesh(
             geometria,
-            material
+            materiais
           );
 
           cubinho.position.set(x, y, z);
@@ -148,21 +152,36 @@
     }
 
     cena.add(cuboMagico);
-
     // =========================================
     // CONTROLE DO TECLADO
     // =========================================
 
     const teclas = {};
-
     window.addEventListener("keydown", (evento) => {
+      
+      if (!evento.repeat) {
+
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(evento.key)) {
+          registrarMovimento();
+        }
+
+        // Inicia o giro se não tiver outra face rodando
+        if (evento.key === "1" && !faceAnimando) {
+          faceAnimando = "1";
+          progressoGiro = 0;
+          registrarMovimento();
+        }
+
+        if (evento.key === "2" && !faceAnimando) {
+          faceAnimando = "2";
+          progressoGiro = 0;
+          registrarMovimento();
+        }
+
+      }
+      
       teclas[evento.key] = true;
     });
-
-    window.addEventListener("keyup", (evento) => {
-      teclas[evento.key] = false;
-    });
-
     // =========================================
     // FUNÇÃO DE MOVIMENTOS
     // =========================================
@@ -176,6 +195,15 @@
       ).innerText = movimentos;
 
     }
+
+    // =========================================
+    // CONTROLE DE ANIMAÇÃO DAS FACES
+    // =========================================
+
+    let faceAnimando = null;
+    let progressoGiro = 0;
+    const ALVO_GIRO = Math.PI / 2; // 90 graus
+    const PASSO_GIRO = 0.05;
 
     // =========================================
     // LOOP DE ANIMAÇÃO
@@ -193,14 +221,12 @@
 
         cuboMagico.rotation.y -= 0.03;
 
-        registrarMovimento();
       }
 
       if (teclas["ArrowRight"]) {
 
         cuboMagico.rotation.y += 0.03;
 
-        registrarMovimento();
       }
 
       // ---------------------------------
@@ -211,14 +237,72 @@
 
         cuboMagico.rotation.x -= 0.03;
 
-        registrarMovimento();
       }
 
       if (teclas["ArrowDown"]) {
 
         cuboMagico.rotation.x += 0.03;
 
-        registrarMovimento();
+      }
+
+
+
+      // ---------------------------------
+      // Rotação das Faces (Giro completo de 90 graus)
+      // ---------------------------------
+
+      if (faceAnimando) {
+
+        let passoAtual = PASSO_GIRO;
+
+        // Ajusta o último passo para cravar exatos 90 graus e não passar direto
+        if (progressoGiro + PASSO_GIRO > ALVO_GIRO) {
+          passoAtual = ALVO_GIRO - progressoGiro;
+        }
+
+        if (faceAnimando === "1") {
+
+          const eixoY = new THREE.Vector3(0, 1, 0);
+          const qY = new THREE.Quaternion().setFromAxisAngle(eixoY, passoAtual);
+
+          cuboMagico.children.forEach(cubinho => {
+            if (Math.round(cubinho.position.y) === 1) {
+              cubinho.position.applyQuaternion(qY);
+              cubinho.quaternion.premultiply(qY);
+            }
+          });
+
+        }
+
+        if (faceAnimando === "2") {
+
+          const eixoX = new THREE.Vector3(1, 0, 0);
+          const qX = new THREE.Quaternion().setFromAxisAngle(eixoX, -passoAtual);
+
+          cuboMagico.children.forEach(cubinho => {
+            if (Math.round(cubinho.position.x) === 1) {
+              cubinho.position.applyQuaternion(qX);
+              cubinho.quaternion.premultiply(qX);
+            }
+          });
+
+        }
+
+        progressoGiro += passoAtual;
+
+        // Se o giro terminou, trava os cubos nas posições certas (evita desalinhamento)
+        if (progressoGiro >= ALVO_GIRO) {
+          
+          faceAnimando = null;
+          
+          cuboMagico.children.forEach(cubinho => {
+            cubinho.position.x = Math.round(cubinho.position.x);
+            cubinho.position.y = Math.round(cubinho.position.y);
+            cubinho.position.z = Math.round(cubinho.position.z);
+          });
+
+        }
+
       }
 
       // Atualiza OrbitControls
