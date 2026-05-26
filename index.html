@@ -72,6 +72,7 @@
 
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.enableKeys = false;
 
     // =========================================
     // CONTADOR DE MOVIMENTOS
@@ -155,32 +156,33 @@
     // =========================================
     // CONTROLE DO TECLADO
     // =========================================
-
     const teclas = {};
+
     window.addEventListener("keydown", (evento) => {
       
-      if (!evento.repeat) {
+      teclas[evento.key] = true; 
 
-        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(evento.key)) {
-          registrarMovimento();
-        }
+      if (!evento.repeat) {
 
         // Inicia o giro se não tiver outra face rodando
         if (evento.key === "1" && !faceAnimando) {
           faceAnimando = "1";
           progressoGiro = 0;
-          registrarMovimento();
+          registrarMovimento(); // Contador só entra aqui!
         }
 
         if (evento.key === "2" && !faceAnimando) {
           faceAnimando = "2";
           progressoGiro = 0;
-          registrarMovimento();
+          registrarMovimento(); // E aqui!
         }
 
       }
       
-      teclas[evento.key] = true;
+    });
+
+    window.addEventListener("keyup", (evento) => {
+      teclas[evento.key] = false;
     });
     // =========================================
     // FUNÇÃO DE MOVIMENTOS
@@ -204,6 +206,9 @@
     let progressoGiro = 0;
     const ALVO_GIRO = Math.PI / 2; // 90 graus
     const PASSO_GIRO = 0.05;
+
+    const grupoFace = new THREE.Group();
+    cuboMagico.add(grupoFace);
 
     // =========================================
     // LOOP DE ANIMAÇÃO
@@ -250,56 +255,63 @@
       // ---------------------------------
       // Rotação das Faces (Giro completo de 90 graus)
       // ---------------------------------
-
+      
       if (faceAnimando) {
 
         let passoAtual = PASSO_GIRO;
 
-        // Ajusta o último passo para cravar exatos 90 graus e não passar direto
+        // Ajusta o último passo para cravar exatos 90 graus
         if (progressoGiro + PASSO_GIRO > ALVO_GIRO) {
           passoAtual = ALVO_GIRO - progressoGiro;
         }
 
-        if (faceAnimando === "1") {
-
-          const eixoY = new THREE.Vector3(0, 1, 0);
-          const qY = new THREE.Quaternion().setFromAxisAngle(eixoY, passoAtual);
-
-          cuboMagico.children.forEach(cubinho => {
-            if (Math.round(cubinho.position.y) === 1) {
-              cubinho.position.applyQuaternion(qY);
-              cubinho.quaternion.premultiply(qY);
+        // 1. "adicione os cubinhos corretos ao grupo" (Só roda no frame inicial)
+        if (progressoGiro === 0) {
+          
+          const cubosAlvo = [];
+          
+          cuboMagico.children.forEach(c => {
+            // Ignora o próprio grupoFace, procura apenas as malhas (Mesh)
+            if (c.type === "Mesh") {
+              if (faceAnimando === "1" && Math.round(c.position.y) === 1) cubosAlvo.push(c);
+              if (faceAnimando === "2" && Math.round(c.position.x) === 1) cubosAlvo.push(c);
             }
           });
 
+          // O attach é o "ancorar" que faz o cubo mudar de grupo sem sair da posição visual
+          cubosAlvo.forEach(c => grupoFace.attach(c));
+          
+        }
+
+        // 2. "anime a rotação" do grupo temporário
+        if (faceAnimando === "1") {
+          grupoFace.rotation.y += passoAtual;
         }
 
         if (faceAnimando === "2") {
-
-          const eixoX = new THREE.Vector3(1, 0, 0);
-          const qX = new THREE.Quaternion().setFromAxisAngle(eixoX, -passoAtual);
-
-          cuboMagico.children.forEach(cubinho => {
-            if (Math.round(cubinho.position.x) === 1) {
-              cubinho.position.applyQuaternion(qX);
-              cubinho.quaternion.premultiply(qX);
-            }
-          });
-
+          grupoFace.rotation.x -= passoAtual;
         }
 
         progressoGiro += passoAtual;
 
-        // Se o giro terminou, trava os cubos nas posições certas (evita desalinhamento)
+        // 3. "depois ancore novamente os cubinhos de volta à cena"
         if (progressoGiro >= ALVO_GIRO) {
           
           faceAnimando = null;
           
-          cuboMagico.children.forEach(cubinho => {
+          while (grupoFace.children.length > 0) {
+            const cubinho = grupoFace.children[0];
+            
+            cuboMagico.attach(cubinho); // Volta para o cubo principal
+            
+            // Trava nos números inteiros para não ficar desalinhado
             cubinho.position.x = Math.round(cubinho.position.x);
             cubinho.position.y = Math.round(cubinho.position.y);
             cubinho.position.z = Math.round(cubinho.position.z);
-          });
+          }
+
+          // Zera a rotação do grupo vazio para a próxima jogada
+          grupoFace.rotation.set(0, 0, 0);
 
         }
 
