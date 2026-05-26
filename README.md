@@ -13,11 +13,7 @@ Aplicar os conceitos de transformações em 3D (translação, rotação, escala)
 - Câmera em órbita com mouse (OrbitControls)
 
 ## Requisitos extras
-- Todas as 6 faces rotacionáveis
-- Botão "embaralhar" com animação
-- Detecção de  
 - Contador de movimentos
-- Temas de cor customizáveis
 
 ## Referências
 Fontes consultadas pelo grupo durante o desenvolvimento. Vai sendo atualizada conforme novos materiais forem usados.
