@@ -23,6 +23,8 @@ Fontes consultadas pelo grupo durante o desenvolvimento. Vai sendo atualizada co
 - **Exemplos da aula**: `ex1-rotacao.html`, `ex2-escopo.html`, `ex3-solar.html`. Padrão de organização do código (criação dos pilares, loop de animação, uso de `Group` para órbitas).
 - **Documentação oficial do Three.js**: https://threejs.org/docs/
 -  Claude code para estudo do material e analises.
+-  [1.Documento.docx](https://github.com/user-attachments/files/28694304/1.Documento.docx)
+
 
 ## Membros do grupo
 - Rafael Sampaio E Silva
